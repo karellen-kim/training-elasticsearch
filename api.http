@@ -1,0 +1,100 @@
+### 참고 : https://esbook.kimjmin.net/04-data/4.1-rest-api
+
+### index 삭제
+DELETE http://localhost:19200/user
+
+### 인덱스 추가
+### https://www.elastic.co/guide/en/elasticsearch/reference/8.5/indices-create-index.html
+PUT http://localhost:19200/user
+Content-Type: application/json
+
+{
+  "settings" : {
+    "number_of_shards" : 1,
+    "number_of_replicas" : 1,
+    "analysis": {
+      "normalizer": {
+        "my_normalizer": {
+          "type": "custom",
+          "char_filter": [],
+          "filter": ["lowercase", "asciifolding"]
+        }
+      }
+    }
+  },
+  "mappings" : {
+    "properties" : {
+      "id" : { "type" : "integer" },
+      "name" : {
+        "type" : "text",
+        "analyzer" : "standard"
+      },
+      "age" : { "type" : "integer" },
+      "job" : { "type" : "keyword", "normalizer" : "my_normalizer" }
+    }
+  }
+}
+
+### index 확인
+GET http://localhost:19200/user
+
+### 추가
+POST http://localhost:19200/user/_doc/1
+Content-Type: application/json
+
+{
+  "id" : 1,
+  "name": "Kim su hyun",
+  "age": 10,
+  "job" : "Server Developer"
+}
+###
+POST http://localhost:19200/user/_doc/2
+Content-Type: application/json
+
+{
+  "id" : 2,
+  "name": "Gang dong won",
+  "age": 30,
+  "job" : "Server Developer"
+}
+
+### 조회
+GET http://localhost:19200/user/_doc/1
+
+### 수정
+PUT http://localhost:19200/user/_doc/1
+Content-Type: application/json
+
+{
+  "name": "Kim su hyun",
+  "age": 10
+}
+
+### 일부 데이터만 업데이트
+POST http://localhost:19200/user/_update/1
+Content-Type: application/json
+
+{
+  "doc": {
+    "name": "Kim su hyun!"
+  }
+}
+
+### id 없이 추가하기
+POST http://localhost:19200/user/_doc
+Content-Type: application/json
+
+{
+  "name": "park",
+  "age": 10
+}
+
+### 기존 데이터를 덮어쓰지 않게 _doc 대신 _create 사용 가능 : version conflict 에러 발생
+PUT http://localhost:19200/user/_create/1
+Content-Type: application/json
+
+{
+  "name": "gang",
+  "age": 1
+}

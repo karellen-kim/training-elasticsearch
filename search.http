@@ -1,0 +1,43 @@
+### 찾기
+GET http://localhost:19200/user/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "name": "Kim"
+    }
+  }
+}
+
+### nomarlizer 적용
+GET http://localhost:19200/user/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "job": "server developer"
+    }
+  }
+}
+
+### aggregation
+### https://www.elastic.co/guide/en/elasticsearch/reference/master/search-aggregations.html
+GET http://localhost:19200/user/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "job": "server developer"
+    }
+  },
+  "aggs": {
+    "job_aggs": {
+      "terms": {
+        "field": "job"
+      }
+    }
+  }
+}

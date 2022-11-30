@@ -1,0 +1,25 @@
+### fielddata 메모리 모니터링
+GET http://localhost:19200/_stats/fielddata?fields=*&pretty
+
+### snapshot
+PUT http://localhost:19200/_snapshot/my_backup
+Content-Type: application/json
+
+{
+  "type": "fs",
+  "settings": {
+    "compress": true,
+    "location": "/tmp/my_backup"
+  }
+}
+
+### snapshot 생성
+### https://www.elastic.co/guide/en/elasticsearch/reference/current/snapshots-take-snapshot.html
+PUT http://localhost:19200/_snapshot/my_backup/backup_v1?wait_for_completion=true
+Content-Type: application/json
+
+{
+  "indices": "test",
+  "ignore_unavailable": true,
+  "include_global_state": true
+}

@@ -1,0 +1,75 @@
+### analyzer
+### https://www.elastic.co/guide/en/elasticsearch/reference/8.5/indices-analyze.html
+POST http://localhost:19200/_analyze
+Content-Type: application/json
+
+{
+  "analyzer" : "standard",
+  "text" : "우리나라가 좋은 나라 elastic Elastic"
+}
+
+###
+GET http://localhost:19200/_analyze
+Content-Type: application/json
+
+{
+  "tokenizer" : "whitespace",
+  "filter" : ["lowercase", {"type": "stop", "stopwords": ["a"]}],
+  "char_filter" : ["html_strip"],
+  "text" : "this is a <b>test</b>"
+}
+
+### index 삭제
+DELETE http://localhost:19200/my_ngram
+
+### ngram analyzer
+### https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-edgengram-tokenizer.html
+PUT http://localhost:19200/my_ngram
+Content-Type: application/json
+
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "my_analyzer": {
+          "tokenizer": "my_tokenizer"
+        },
+        "my_ngram_analyzer": {
+          "tokenizer": "my_ngram_tokenizer"
+        }
+      },
+      "tokenizer": {
+        "my_tokenizer": {
+          "type": "ngram",
+          "min_gram": 2,
+          "max_gram": 3,
+          "token_chars": [ "letter", "digit" ]
+        },
+        "my_ngram_tokenizer": {
+          "type": "edge_ngram",
+          "min_gram": 2,
+          "max_gram": 10,
+          "token_chars": [ "letter", "digit" ]
+        }
+      }
+    }
+  }
+}
+
+###
+POST http://localhost:19200/my_ngram/_analyze
+Content-Type: application/json
+
+{
+  "tokenizer" : "my_tokenizer",
+  "text" : "Harry potter"
+}
+
+### edge ngram analyze
+POST http://localhost:19200/my_ngram/_analyze
+Content-Type: application/json
+
+{
+  "tokenizer": "my_ngram_tokenizer",
+  "text": "Quick Fox"
+}
