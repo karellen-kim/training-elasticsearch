@@ -23,6 +23,17 @@ Content-Type: application/json
     }
   },
   "mappings" : {
+    "dynamic_templates": [
+      {
+        "strings_as_keywords": {
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "keyword",
+            "index": false
+          }
+        }
+      }
+    ],    
     "properties" : {
       "id" : { "type" : "integer" },
       "name" : {
