@@ -1,0 +1,129 @@
+### analyzer
+### https://www.elastic.co/guide/en/elasticsearch/reference/8.5/indices-analyze.html
+
+### 플러그인 확인
+GET {{host}}/_cat/plugins?v
+
+### standard analyzer
+POST {{host}}/_analyze
+Content-Type: application/json
+
+{
+  "analyzer" : "standard",
+  "text" : "우리나라가 좋은 나라 elastic Elastic"
+}
+
+###
+GET {{host}}/_analyze
+Content-Type: application/json
+
+{
+  "tokenizer" : "whitespace",
+  "filter" : ["lowercase", {"type": "stop", "stopwords": ["a"]}],
+  "char_filter" : ["html_strip"],
+  "text" : "this is a <b>test</b>"
+}
+
+### index 삭제
+DELETE {{host}}/my_ngram
+
+### ngram analyzer
+### https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-edgengram-tokenizer.html
+PUT {{host}}/my_ngram
+Content-Type: application/json
+
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "my_analyzer": {
+          "tokenizer": "my_tokenizer"
+        },
+        "my_ngram_analyzer": {
+          "tokenizer": "my_ngram_tokenizer"
+        }
+      },
+      "tokenizer": {
+        "my_tokenizer": {
+          "type": "ngram",
+          "min_gram": 2,
+          "max_gram": 3,
+          "token_chars": [ "letter", "digit" ]
+        },
+        "my_ngram_tokenizer": {
+          "type": "edge_ngram",
+          "min_gram": 2,
+          "max_gram": 10,
+          "token_chars": [ "letter", "digit" ]
+        }
+      }
+    }
+  }
+}
+
+###
+POST {{host}}/my_ngram/_analyze
+Content-Type: application/json
+
+{
+  "tokenizer" : "my_tokenizer",
+  "text" : "Harry potter"
+}
+
+### edge ngram analyze
+POST {{host}}/my_ngram/_analyze
+Content-Type: application/json
+
+{
+  "tokenizer": "my_ngram_tokenizer",
+  "text": "Quick Fox"
+}
+
+### Nori Analyzer
+POST {{host}}/_analyze
+Content-Type: application/json
+
+{
+  "tokenizer": "nori_tokenizer",
+  "text" : "삼성전자가 새로운 스마트폰을 출시했습니다."
+}
+
+### Nori Analyzer
+### 감칠, 맛, 나, 는, 대, 용량, 한, 입, 쥐, 포
+POST {{host}}/_analyze
+Content-Type: application/json
+
+{
+  "tokenizer": "nori_tokenizer",
+  "text" : "감칠맛나는 대용량 한입쥐포"
+}
+
+### Nori Analyzer
+###
+POST {{host}}/_analyze
+Content-Type: application/json
+
+{
+  "tokenizer": "nori_tokenizer",
+  "text" : "연말정산 세액공제, 올해 마지막 절세 기회를 놓치지 마세요"
+}
+
+### Arirang Analyzer
+### 감칠맛나는, 대용량, 한입쥐포 -> standard tokenizer와 동일
+POST {{host}}/_analyze
+Content-Type: application/json
+
+{
+  "tokenizer": "arirang_tokenizer",
+  "text": "감칠맛나는 대용량 한입쥐포"
+}
+
+### Arirang Analyzer
+### 연말정산, 연말, 정산, 세액공제, 세액, 공제, 올해, 마지막, 절세, 기회를, 기회, 를, 마세요
+POST {{host}}/_analyze
+Content-Type: application/json
+
+{
+  "analyzer": "arirang_analyzer",
+  "text": "연말정산 세액공제, 올해 마지막 절세 기회를 놓치지 마세요"
+}

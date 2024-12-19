@@ -1,0 +1,98 @@
+###
+DELETE {{host}}/mytest
+
+###
+PUT {{host}}/mytest
+Content-Type: application/json
+
+{
+  "settings": {
+    "analysis": {
+      "tokenizer": {
+        "custom_tokenizer": {
+          "type": "nori_tokenizer",
+          "decompound_mode": "mixed",
+          "user_dictionary": "user_dict.txt"
+        }
+      },
+      "filter": {
+        "nori_pos_filter": {
+          "type": "nori_part_of_speech",
+          "stoptags": ["E", "IC", "J", "MAG", "MM", "SP", "SSC", "SSO", "UNA", "VCP", "VCN", "VV", "VA", "VX"]
+        }
+      },
+      "analyzer": {
+        "custom_analyzer": {
+          "type": "custom",
+          "tokenizer": "custom_tokenizer",
+          "filter": ["lowercase", "nori_pos_filter"]
+        }
+      }
+    }
+  },
+    "mappings" : {
+    "properties" : {
+      "name" : {
+        "type" : "text",
+        "analyzer" : "custom_analyzer"
+      }
+    }
+  }
+}
+
+### 연말정산
+POST {{host}}/mytest/_analyze
+Content-Type: application/json
+
+{
+  "tokenizer": "custom_tokenizer",
+  "text": "연말정산"
+}
+
+### 연말정산, 세액, 공제, 올해, 올, 해, 마지막, 절세, 기회
+POST {{host}}/mytest/_analyze
+Content-Type: application/json
+
+{
+  "analyzer": "custom_analyzer",
+  "text": "연말정산 세액공제, 올해 마지막 절세 기회를 놓치지 마세요"
+}
+
+### 샤오미 보조 배터리
+POST {{host}}/mytest/_analyze
+Content-Type: application/json
+
+{
+  "analyzer": "custom_analyzer",
+  "text": "샤오미 보조배터리"
+}
+
+### 상품
+POST {{host}}/mytest/_doc/1
+Content-Type: application/json
+
+{
+  "name": "샤오미 보조 배터리"
+}
+
+### 상품
+POST {{host}}/mytest/_doc/2
+Content-Type: application/json
+
+{
+  "name": "삼성 TV"
+}
+
+###
+GET {{host}}/mytest/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "name": {
+        "query": "삼성 보조 배터리"
+      }
+    }
+  }
+}
