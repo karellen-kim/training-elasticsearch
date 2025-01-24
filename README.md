@@ -22,3 +22,27 @@
   * 품사 : NNG - 일반 명사 
   * 종성유무 : F
   * 타입 : Compound 
+
+  ## 은전한닢
+* 설치
+```kt
+implementation("org.bitbucket.eunjeon:seunjeon_2.12:1.5.0") {
+  exclude(group = "com.jsuereth", module = "sbt-pgp")
+}
+```
+* 형태소분석
+```kt
+import org.bitbucket.eunjeon.seunjeon.Analyzer
+
+val stoptags = listOf("NNG", "NNP", "NNB", "NR", "NP", "SL", "SH", "SN", "NNBC")
+Analyzer.setUserDict(listOf("멋쟁이토마토", "보조배터리,10", "아이폰16프로,20", """C\+\+""").listIterator())
+
+for (node in Analyzer.parseJava("멋쟁이토마토의보조배터리텔레비전재밌어아이폰16프로.")) {
+    val word = node.morpheme().surface
+    val tag = node.morpheme().featureHead
+
+    if (stoptags.contains(tag)) {
+        System.out.println(word)
+    }
+}
+```
