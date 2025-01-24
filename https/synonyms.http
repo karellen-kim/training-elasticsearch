@@ -1,0 +1,178 @@
+### 동의어 사전 목록
+GET {{host}}/_synonyms
+
+### 동의어 사전 삭제
+DELETE {{host}}/_synonyms/my_synonym_set_v1
+
+### 동의어 사전 업데이트
+PUT {{host}}/_synonyms/my_synonym_set_v1
+Content-Type: application/json
+
+{
+  "synonyms_set": [
+    {
+      "id": "1",
+      "synonyms": "삼성, samsung"
+    },
+    {
+      "id": "2",
+      "synonyms": "텔레비전, tv, 티비"
+    },
+    {
+      "id": "3",
+      "synonyms": "아이폰, iphone"
+    }
+  ]
+}
+
+### 동의어 사전 업데이트
+PUT {{host}}/_synonyms/my_synonym_set_v2
+Content-Type: application/json
+
+{
+  "synonyms_set": [
+    {
+      "id": "1",
+      "synonyms": "삼성, samsung => 삼성전자"
+    },
+    {
+      "id": "2",
+      "synonyms": "tv, 티비 => 텔레비전"
+    },
+    {
+      "id": "3",
+      "synonyms": "사과폰, iphone => 아이폰"
+    }
+  ]
+}
+
+### 동의어 사전 조회
+GET {{host}}/_synonyms/my_synonym_set_v1
+
+### 동의어 사전 조회
+GET {{host}}/_synonyms/my_synonym_set_v2
+
+### 동의어 사전 정보 가져오기 =
+GET {{host}}/_synonyms/my_synonym_set_v1/2
+
+### 동의어 사전 업데이트
+PUT {{host}}/_synonyms/my_synonym_set_v1/2
+Content-Type: application/json
+
+{
+  "synonyms": "텔레비전, tv, 티비, 텔레비"
+}
+
+###
+DELETE {{host}}/synonym_test
+
+###
+PUT {{host}}/synonym_test
+Content-Type: application/json
+
+{
+  "settings": {
+    "analysis": {
+      "tokenizer": {
+        "custom_tokenizer": {
+          "type": "nori_tokenizer",
+          "decompound_mode": "none",
+          "user_dictionary": "user_dict.txt"
+        }
+      },
+      "filter": {
+        "nori_pos_filter": {
+          "type": "nori_part_of_speech",
+          "stoptags": ["E", "IC", "J", "MAG", "MM", "SP", "SSC", "SSO", "UNA", "VCP", "VCN", "VV", "VA", "VX"]
+        },
+        "synonyms_v1_filter": {
+          "type": "synonym_graph",
+          "synonyms_set": "my_synonym_set_v1",
+          "updateable": true
+        },
+        "synonyms_v2_filter": {
+          "type": "synonym_graph",
+          "synonyms_set": "my_synonym_set_v2",
+          "updateable": true
+        }
+      },
+      "analyzer": {
+        "index_analyzer": {
+          "type": "custom",
+          "tokenizer": "custom_tokenizer",
+          "filter": ["lowercase", "nori_pos_filter"]
+        },
+        "search_v1_analyzer": {
+          "type": "custom",
+          "tokenizer": "custom_tokenizer",
+          "filter": ["lowercase", "nori_pos_filter", "synonyms_v1_filter"]
+        },
+        "search_v2_analyzer": {
+          "type": "custom",
+          "tokenizer": "custom_tokenizer",
+          "filter": ["lowercase", "nori_pos_filter", "synonyms_v2_filter"]
+        }
+      }
+    }
+  },
+    "mappings" : {
+    "properties" : {
+      "name" : {
+        "type" : "text",
+        "analyzer" : "index_analyzer"
+      }
+    }
+  }
+}
+
+###
+POST {{host}}/synonym_test/_reload_search_analyzers
+
+### 삼성 tv
+POST {{host}}/synonym_test/_analyze
+Content-Type: application/json
+
+{
+  "analyzer": "index_analyzer",
+  "text": "삼성tv"
+}
+
+### 삼성 tv
+POST {{host}}/synonym_test/_analyze
+Content-Type: application/json
+
+{
+  "analyzer": "search_v1_analyzer",
+  "text": "삼성tv"
+}
+
+### 삼성 tv
+POST {{host}}/synonym_test/_analyze
+Content-Type: application/json
+
+{
+  "analyzer": "search_v2_analyzer",
+  "text": "삼성tv"
+}
+
+### 상품
+POST {{host}}/synonym_test/_doc/1
+Content-Type: application/json
+
+{
+  "name": "삼성 텔레비전"
+}
+
+###
+GET {{host}}/synonym_test/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "name": {
+        "query": "삼성 tv"
+      }
+    }
+  }
+}

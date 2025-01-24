@@ -107,23 +107,3 @@ Content-Type: application/json
   "tokenizer": "nori_tokenizer",
   "text" : "연말정산 세액공제, 올해 마지막 절세 기회를 놓치지 마세요"
 }
-
-### Arirang Analyzer
-### 감칠맛나는, 대용량, 한입쥐포 -> standard tokenizer와 동일
-POST {{host}}/_analyze
-Content-Type: application/json
-
-{
-  "tokenizer": "arirang_tokenizer",
-  "text": "감칠맛나는 대용량 한입쥐포"
-}
-
-### Arirang Analyzer
-### 연말정산, 연말, 정산, 세액공제, 세액, 공제, 올해, 마지막, 절세, 기회를, 기회, 를, 마세요
-POST {{host}}/_analyze
-Content-Type: application/json
-
-{
-  "analyzer": "arirang_analyzer",
-  "text": "연말정산 세액공제, 올해 마지막 절세 기회를 놓치지 마세요"
-}
